@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
-const sendToken = (user, statusCode, res) => {
-    const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {
+const sendToken = (user, statusCode, res, isRedirect = false) => {
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
         expiresIn: '3d',
     });
 
@@ -12,15 +12,21 @@ const sendToken = (user, statusCode, res) => {
         sameSite: 'strict',
     };
 
-    res.status(statusCode).cookie('token', token, options).json({
-        success: true,
-        user: {
-            id: user._id,
-            username: user.username,
-            email: user.email
-        },
-        token,
-    });
+    res.cookie('token', token, options);
+
+    if (isRedirect) {
+        res.redirect(process.env.FRONTEND_URL);
+    } else {
+        res.status(statusCode).json({
+            success: true,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+            },
+            token,
+        });
+    }
 };
 
 export default sendToken;

@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 const storyEntrySchema = new mongoose.Schema({
     type: {
         type: String,
-        enum: ['NARRATION', 'ACTION', 'SYSTEM'], // NARRATION from AI, ACTION from player, SYSTEM for joining/leaving
+        enum: ['NARRATION', 'ACTION', 'SYSTEM', 'IMAGE'], // NARRATION from AI, ACTION from player, SYSTEM for joining/leaving
         required: true,
     },
     author: {
@@ -21,6 +21,18 @@ const storyEntrySchema = new mongoose.Schema({
     },
 });
 
+const characterSchema = new mongoose.Schema({
+    username: { type: String, required: true },
+    socketId: { type: String },
+    characterName: { type: String, required: true },
+    description: { type: String },
+    attributes: {
+        strength: { type: Number, default: 10 },
+        wits: { type: Number, default: 10 },
+        charisma: { type: Number, default: 10 },
+    },
+});
+
 const roomSchema = new mongoose.Schema(
     {
         roomCode: {
@@ -29,12 +41,16 @@ const roomSchema = new mongoose.Schema(
             unique: true,
             index: true,
         },
-        players: [
-            {
-                type: String,
-            },
-        ],
+        players: [characterSchema],
         storyHistory: [storyEntrySchema],
+        worldSeed: {
+            type: String,
+            default: 'High Fantasy',
+        },
+        npcMemory: {
+            type: String,
+            default: 'No important NPCs have been introduced yet.',
+        },
     },
     {
         timestamps: true,

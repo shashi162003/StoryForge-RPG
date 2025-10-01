@@ -122,3 +122,10 @@ export const loginUser = async (req, res) => {
         });
     }
 }
+
+// @desc    Get current logged in user
+// @route   GET /api/auth/me
+// @access  Private
+export const getMe = async (req, res) => {
+    res.status(200).json({ success: true, user: req.user });
+};

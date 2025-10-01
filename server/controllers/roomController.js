@@ -11,38 +11,46 @@ const generateRoomCode = () => {
 
 export const createRoom = async (req, res) => {
     try {
-        const username = req.user.username;
-        if (!username){
-            return res.status(400).json({
-                success: false,
-                message: 'Username is required to create a room',
-            });
+        const { username, worldSeed } = req.body;
+        if (!username) {
+            return res.status(400).json({ message: 'Username is required' });
         }
-        
+
+        const creatorCharacter = {
+            username: username,
+            characterName: `Adventurer ${username}`,
+            description: 'The one who started it all.',
+            attributes: {
+                strength: Math.floor(Math.random() * 6) + 8,
+                wits: Math.floor(Math.random() * 6) + 8,
+                charisma: Math.floor(Math.random() * 6) + 8,
+            }
+        };
+
         const newRoom = new Room({
             roomCode: generateRoomCode(),
-            players: [username],
+            players: [creatorCharacter],
+            worldSeed: worldSeed || 'High Fantasy',
             storyHistory: [{
                 type: 'SYSTEM',
                 author: 'System',
-                content: `${username} created the room and joined the adventure!`,
+                content: `${username} created a '${worldSeed || 'High Fantasy'}' adventure!`,
             }],
         });
 
         const savedRoom = await newRoom.save();
-
-        console.log(colors.green(`[Room] New room created with code: ${savedRoom.roomCode} by user: ${username}`));
 
         res.status(201).json({
             success: true,
             room: savedRoom,
             message: 'Room created successfully',
         });
+
     } catch (error) {
         console.error(colors.red(`[Room] Error creating room: ${error.message}`));
         res.status(500).json({
             success: false,
-            message: 'Server Error while creating room',
+            message: 'Server error while creating room',
         });
     }
 };

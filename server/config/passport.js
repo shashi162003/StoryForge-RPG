@@ -13,24 +13,35 @@ export default function(passport) {
                 callbackURL: '/api/auth/google/callback',
             },
             async (accessToken, refreshToken, profile, done) => {
-                const newUser = {
-                    googleId: profile.id,
-                    username: profile.displayName,
-                    email: profile.emails[0].value,
-                    avatar: profile.photos[0].value,
-                };
-
                 try {
                     let user = await User.findOne({ googleId: profile.id });
 
                     if (user) {
-                        done(null, user);
-                    } else {
-                        user = await User.create(newUser);
-                        done(null, user);
+                        return done(null, user);
                     }
-                } catch(err) {
-                    console.error(colors.red(`[Passport] Error authenticating user: ${err.message}`));
+
+                    user = await User.findOne({ email: profile.emails[0].value });
+
+                    if (user) {
+                        user.googleId = profile.id;
+                        user.avatar = user.avatar || profile.photos[0].value;
+                        await user.save();
+                        return done(null, user);
+                    }
+
+                    const newUser = {
+                        googleId: profile.id,
+                        username: profile.displayName,
+                        email: profile.emails[0].value,
+                        avatar: profile.photos[0].value,
+                        isVerified: true,
+                    };
+                    user = await User.create(newUser);
+                    done(null, user);
+
+                } catch (err) {
+                    console.error(`[Passport] Error authenticating user: ${err.message}`);
+                    done(err, null);
                 }
             }
         )

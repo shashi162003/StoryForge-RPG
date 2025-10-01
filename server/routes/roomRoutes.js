@@ -4,7 +4,7 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/', protect, createRoom);
-router.get('/:roomCode', protect, getRoom);
+router.post('/', createRoom);
+router.get('/:roomCode', getRoom);
 
 export default router;

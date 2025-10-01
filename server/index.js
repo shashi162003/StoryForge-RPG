@@ -3,40 +3,35 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import colors from 'colors';
+import passport from 'passport';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+
 import connectDB from './config/db.js';
-import roomRoutes from './routes/roomRoutes.js';
-import {createServer} from 'http';
-import {Server} from 'socket.io';
+import configurePassport from './config/passport.js';
 import initializeSocket from './socket/socketHandler.js';
 import authRoutes from './routes/authRoutes.js';
-import configurePassport from './config/passport.js';
-import passport from 'passport';
+import roomRoutes from './routes/roomRoutes.js';
 
 dotenv.config();
-
 connectDB();
 configurePassport(passport);
 
 const app = express();
-app.use(passport.initialize());
-const httpServer = createServer(app);
-
-const io = new Server(httpServer, {
-    cors: {
-        origin: 'http://localhost:5173',
-        credentials: true,
-        methods: ['GET', 'POST'],
-    }
-});
-
-initializeSocket(io);
-
 const PORT = process.env.PORT || 5000;
+const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:5173'];
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
 }));
+app.use(passport.initialize());
 app.use(express.json());
 app.use(cookieParser());
 
@@ -49,6 +44,16 @@ app.get('/', (req, res) => {
         message: 'Storyforge RPG API is running!'
     });
 });
+
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+    cors: {
+        origin: allowedOrigins,
+        credentials: true,
+        methods: ['GET', 'POST'],
+    }
+});
+initializeSocket(io);
 
 httpServer.listen(PORT, () => {
     console.log(colors.cyan(`[Server] Server is running on port ${PORT}`));

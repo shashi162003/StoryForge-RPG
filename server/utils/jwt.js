@@ -9,7 +9,7 @@ const sendToken = (user, statusCode, res, isRedirect = false) => {
         expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'none',
     };
 
     res.cookie('token', token, options);

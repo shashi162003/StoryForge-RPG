@@ -3,15 +3,18 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import Spinner from '../components/Spinner';
 
 const RegisterPage = () => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        setLoading(true);
         if (password.length < 6) {
             return alert('Password must be at least 6 characters long.');
         }
@@ -24,6 +27,8 @@ const RegisterPage = () => {
         } catch (error) {
             console.error('Registration failed:', error.response?.data?.message || error.message);
             alert('Registration failed. The email or username may already be in use.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -52,7 +57,9 @@ const RegisterPage = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
-                <Button type="submit">Register</Button>
+                <Button type="submit" disabled={loading}>
+                    {loading ? <Spinner /> : 'Register'}
+                </Button>
             </form>
             <div className="text-center mt-4">
                 <p>

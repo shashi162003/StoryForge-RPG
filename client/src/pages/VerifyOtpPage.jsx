@@ -4,6 +4,7 @@ import axios from 'axios';
 import useStore from '../store/useStore';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import Spinner from '../components/Spinner';
 
 const VerifyOtpPage = () => {
     const [otp, setOtp] = useState('');
@@ -11,6 +12,7 @@ const VerifyOtpPage = () => {
     const { state } = useLocation();
     const email = state?.email;
     const setUser = useStore((state) => state.setUser);
+    const [loading, setLoading] = useState(false);
 
     if (!email) {
         navigate('/register');
@@ -19,6 +21,7 @@ const VerifyOtpPage = () => {
 
     const handleVerify = async (e) => {
         e.preventDefault();
+        setLoading(true);
         try {
             const { data } = await axios.post(
                 `${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-otp`,
@@ -31,6 +34,8 @@ const VerifyOtpPage = () => {
         } catch (error) {
             console.error('OTP verification failed:', error.response?.data?.message || error.message);
             alert('Invalid or expired OTP. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -46,7 +51,9 @@ const VerifyOtpPage = () => {
                     onChange={(e) => setOtp(e.target.value)}
                     required
                 />
-                <Button type="submit">Verify & Login</Button>
+                <Button type="submit" disabled={loading}>
+                    {loading ? <Spinner /> : 'Verify OTP'}
+                </Button>
             </form>
         </div>
     );

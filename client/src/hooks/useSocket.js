@@ -21,6 +21,7 @@ export const useSocket = () => {
         socketInstance.on('room-update', (updatedRoom) => {
             console.log('4. [Frontend] Received room-update from server:', updatedRoom);
             setRoom(updatedRoom);
+            useStore.getState().setIsSendingAction(false);
         });
 
         setSocket(socketInstance);

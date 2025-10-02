@@ -5,6 +5,7 @@ import useStore from '../store/useStore';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import { motion } from 'framer-motion';
+import Spinner from '../components/Spinner';
 
 const themes = [
     { name: 'High Fantasy', description: 'Classic swords and sorcery.' },
@@ -18,9 +19,12 @@ const LobbyPage = () => {
     const [worldSeed, setWorldSeed] = useState('High Fantasy');
     const navigate = useNavigate();
     const { setUser, setRoom } = useStore();
+    const [createLoading, setCreateLoading] = useState(false);
+    const [joinLoading, setJoinLoading] = useState(false);
 
     const handleCreateRoom = async (e) => {
         e.preventDefault();
+        setCreateLoading(true);
         if (!username.trim()) return alert('Please enter a username');
 
         try {
@@ -34,11 +38,14 @@ const LobbyPage = () => {
         } catch (error) {
             console.error('Error creating room:', error);
             alert('Could not create room. Please try again.');
+        } finally {
+            setCreateLoading(false);
         }
     };
 
     const handleJoinRoom = async (e) => {
         e.preventDefault();
+        setJoinLoading(true);
         if (!username.trim() || !roomCode.trim()) return alert('Please enter a username and room code');
 
         try {
@@ -50,6 +57,8 @@ const LobbyPage = () => {
         } catch (error) {
             console.error("Error joining room:", error);
             alert("Room not found or an error occurred. Please check the code and try again.");
+        } finally {
+            setJoinLoading(false);
         }
     };
 
@@ -105,7 +114,9 @@ const LobbyPage = () => {
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                         />
-                        <Button type="submit">Create Adventure</Button>
+                        <Button type="submit" disabled={createLoading}>
+                            {createLoading ? <Spinner /> : 'Create Adventure'}
+                        </Button>
                     </motion.form>
 
                     <motion.form
@@ -121,7 +132,9 @@ const LobbyPage = () => {
                             value={roomCode}
                             onChange={(e) => setRoomCode(e.target.value)}
                         />
-                        <Button type="submit">Join Adventure</Button>
+                        <Button type="submit" disabled={joinLoading}>
+                            {joinLoading ? <Spinner /> : 'Join Adventure'}
+                        </Button>
                     </motion.form>
                 </div>
             </div>

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import useStore from '../store/useStore';
+import Spinner from './Spinner';
 
 const WhisperIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -9,6 +11,7 @@ const WhisperIcon = () => (
 const ActionInput = ({ onActionSubmit, onWhisperSubmit }) => {
     const [actionText, setActionText] = useState('');
     const [isWhisper, setIsWhisper] = useState(false);
+    const isSendingAction = useStore((state) => state.isSendingAction);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -31,6 +34,7 @@ const ActionInput = ({ onActionSubmit, onWhisperSubmit }) => {
                     onChange={(e) => setActionText(e.target.value)}
                     placeholder="What do you do next?"
                     className="flex-grow px-4 py-3 text-xl bg-white dark:bg-gray-800 dark:text-white border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                    disabled={isSendingAction}
                 />
                 <button
                     type="button"
@@ -40,14 +44,16 @@ const ActionInput = ({ onActionSubmit, onWhisperSubmit }) => {
                             : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300'
                         }`}
                     title={isWhisper ? "Sending as a Whisper" : "Send Publicly"}
+                    disabled={isSendingAction}
                 >
                     <WhisperIcon />
                 </button>
                 <button
                     type="submit"
                     className="px-6 py-3 text-xl font-bold border-2 border-black rounded-lg shadow-[4px_4px_0px_#000] bg-primary text-white hover:bg-green-800 focus:outline-none transform hover:translate-y-1 hover:shadow-[2px_2px_0px_#000] transition-all"
+                    disabled={isSendingAction}
                 >
-                    Send
+                    {isSendingAction ? <Spinner /> : 'Send'}
                 </button>
             </div>
         </form>

@@ -4,15 +4,18 @@ import axios from 'axios';
 import useStore from '../store/useStore';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import Spinner from '../components/Spinner';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const setUser = useStore((state) => state.setUser);
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setLoading(true);
         try {
             const { data } = await axios.post(
                 `${import.meta.env.VITE_API_BASE_URL}/api/auth/login`,
@@ -25,6 +28,8 @@ const LoginPage = () => {
         } catch (error) {
             console.error('Login failed:', error.response?.data?.message || error.message);
             alert('Login failed. Please check your credentials.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -54,7 +59,9 @@ const LoginPage = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
-                <Button type="submit">Login</Button>
+                <Button type="submit" disabled={loading}>
+                    {loading ? <Spinner /> : 'Login'}
+                </Button>
             </form>
             <div className="text-center mt-4">
                 <p>

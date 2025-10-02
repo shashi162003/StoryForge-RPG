@@ -14,6 +14,7 @@ const RoomPage = () => {
     const { roomCode } = useParams();
     const { socket, user, room } = useStore();
     const [privateMessage, setPrivateMessage] = useState(null);
+    const setIsSendingAction = useStore((state) => state.setIsSendingAction);
 
     useEffect(() => {
         if (socket) {
@@ -40,6 +41,7 @@ const RoomPage = () => {
 
     const handleActionSubmit = (actionText) => {
         if (socket && user && room) {
+            setIsSendingAction(true);
             const payload = {
                 roomCode: room.roomCode,
                 username: user.username,

@@ -44,7 +44,12 @@ function App() {
   }, [setUser]);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen bg-background-light dark:bg-background-dark text-4xl">Loading...</div>;
+    return (
+      <div className="flex flex-col justify-center items-center h-screen bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+        <h1 className="text-6xl font-bold text-primary">StoryForge</h1>
+        <p className="text-xl text-secondary mt-2">Loading your adventures...</p>
+      </div>
+    );
   }
 
 

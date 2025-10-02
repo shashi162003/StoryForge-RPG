@@ -19,10 +19,10 @@ configurePassport(passport);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:5173'];
 
 app.use(cors({
     origin: function (origin, callback) {
+        const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:5173'];
         console.log("==== CORS CHECK ====");
         console.log("INCOMING ORIGIN:", origin);
         console.log("ALLOWED ORIGINS:", allowedOrigins);
@@ -51,7 +51,14 @@ app.get('/', (req, res) => {
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: allowedOrigins,
+        origin: (origin, callback) => {
+            const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:5173'];
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
         credentials: true,
         methods: ['GET', 'POST'],
     }

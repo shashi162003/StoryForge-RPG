@@ -1,31 +1,39 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import colors from 'colors';
+import axios from 'axios';
 
 dotenv.config();
 
 const sendEmail = async (options) => {
-    const transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-        },
-    });
+    const url = 'https://api.brevo.com/v3/smtp/email';
 
-    const mailOptions = {
-        from: `StoryForge <${process.env.EMAIL_FROM}>`,
-        to: options.email,
+    const headers = {
+        'Accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'Content-Type': 'application/json',
+    };
+
+    const body = {
+        sender: {
+            name: 'StoryForge RPG',
+            email: process.env.EMAIL_FROM,
+        },
+        to: [
+            {
+                email: options.email,
+            },
+        ],
         subject: options.subject,
-        text: options.message,
+        textContent: options.message,
     };
 
     try {
-        await transporter.sendMail(mailOptions);
-        console.log(colors.green(`[Email] Email sent to ${options.email}.`));
+        await axios.post(url, body, { headers });
+        console.log(colors.green(`[Email API] Email sent to ${options.email}`));
     } catch (error) {
-        console.error(colors.red(`[Email] Error sending email: ${error.message}`));
+        const errorMessage = error.response?.data?.message || error.message;
+        console.error(colors.red(`[Email API] Error sending email: ${errorMessage}`));
     }
 }
 

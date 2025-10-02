@@ -13,6 +13,8 @@ import initializeSocket from './socket/socketHandler.js';
 import authRoutes from './routes/authRoutes.js';
 import roomRoutes from './routes/roomRoutes.js';
 
+import nodemailer from 'nodemailer';
+
 dotenv.config();
 connectDB();
 configurePassport(passport);

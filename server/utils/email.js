@@ -6,17 +6,16 @@ dotenv.config();
 
 const sendEmail = async (options) => {
     const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
+        host: 'smtp-relay.brevo.com',
         port: process.env.EMAIL_PORT,
-        secure: process.env.EMAIL_PORT === 465,
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS,
         },
     });
-    
+
     const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: `StoryForge <${process.env.EMAIL_FROM}>`,
         to: options.email,
         subject: options.subject,
         text: options.message,
@@ -24,7 +23,7 @@ const sendEmail = async (options) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(colors.green(`[Email] Email sent to ${options.email}`));
+        console.log(colors.green(`[Email] Email sent to ${options.email}.`));
     } catch (error) {
         console.error(colors.red(`[Email] Error sending email: ${error.message}`));
     }

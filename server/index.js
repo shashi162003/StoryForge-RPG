@@ -48,6 +48,29 @@ app.get('/', (req, res) => {
     });
 });
 
+app.get('/test-email', async (req, res) => {
+    console.log('--- RUNNING EMAIL CONNECTION TEST ---');
+    try {
+        const transporter = nodemailer.createTransport({
+            host: process.env.EMAIL_HOST,
+            port: process.env.EMAIL_PORT,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+        });
+
+        await transporter.verify();
+
+        console.log(colors.green('[Email Test] Connection to Brevo was successful!'));
+        res.status(200).json({ success: true, message: 'Connection successful.' });
+
+    } catch (error) {
+        console.error(colors.red('[Email Test] Connection failed. Full error:'), error);
+        res.status(500).json({ success: false, message: 'Connection failed.', error: error.message });
+    }
+});
+
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
